@@ -1084,8 +1084,18 @@ impl NotepadApp {
 
     // ---------------------------------------------------------------- dialogs
 
+    fn start_dir(&self) -> PathBuf {
+        self.docs[self.doc_index()]
+            .path
+            .as_ref()
+            .and_then(|p| p.parent())
+            .map(|p| p.to_path_buf())
+            .or_else(|| std::env::current_dir().ok())
+            .unwrap_or_else(|| PathBuf::from("/"))
+    }
+
     fn open_dialog(&mut self) {
-        let dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("/"));
+        let dir = self.start_dir();
         let entries = list_dir(&dir);
         self.dialog = Some(Dialog::Open {
             dir,
@@ -1103,7 +1113,13 @@ impl NotepadApp {
                 Err(err) => self.flash(format!("Save failed: {err}")),
             }
         } else {
-            let dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("/"));
+            let dir = doc
+                .path
+                .as_ref()
+                .and_then(|p| p.parent())
+                .map(|p| p.to_path_buf())
+                .or_else(|| std::env::current_dir().ok())
+                .unwrap_or_else(|| PathBuf::from("/"));
             let entries = list_dir(&dir);
             let name = if doc.title() == "Untitled" {
                 "Untitled.txt".into()
