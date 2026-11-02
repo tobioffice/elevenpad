@@ -14,8 +14,8 @@
   <a href="https://github.com/emilk/egui"><img src="https://img.shields.io/badge/UI-egui-3b6ea5" alt="egui"></a>
   <img src="https://img.shields.io/badge/platform-Linux-1793d1?logo=linux&logoColor=white" alt="Linux">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2ea44f" alt="MIT"></a>
-  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/v/release/tobioffice/elevenpad?color=0078d4&cache=2" alt="Release"></a>
-  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/downloads/tobioffice/elevenpad/total?color=0078d4&cache=2" alt="Downloads"></a>
+  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/v/release/tobioffice/elevenpad?color=0078d4&cache=3" alt="Release"></a>
+  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/downloads/tobioffice/elevenpad/total?color=0078d4&cache=3" alt="Downloads"></a>
 </p>
 
 <p align="center">
@@ -23,8 +23,12 @@
 </p>
 
 <p align="center">
-  <img src="docs/dark.png" width="380" alt="Notepad dark theme">
-  <img src="docs/find.png" width="380" alt="Notepad find bar">
+  <img src="docs/dark.png" width="380" alt="Elevenpad dark theme">
+  <img src="docs/find.png" width="380" alt="Elevenpad find bar">
+</p>
+
+<p align="center">
+  <img src="docs/syntax.png" width="720" alt="Rust syntax highlighting">
 </p>
 
 ## Why
@@ -46,29 +50,31 @@ without Electron, GTK, Qt or a web view.
 | **Window** | Native edge and corner resizing, title bar dragging, double click to maximize, custom caption buttons |
 | **Themes** | Light and dark palettes matching Windows 11 chrome colors |
 | **Text** | Selawik, metric compatible with Segoe UI, and DejaVu Sans Mono for the editor |
+| **Code** | Lightweight syntax highlighting for Rust, Python, JavaScript, TypeScript, C, C++, Go, Java, JSON, TOML, YAML, shell and SQL |
+| **Integration** | Opens files from the file manager ("Open with"), multiple files open in tabs, `elevenpad FILE...` on the command line |
 
 ## Install
 
 ### AppImage (recommended)
 
 ```bash
-curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.2.0-x86_64.AppImage
-chmod +x Elevenpad-0.2.0-x86_64.AppImage
-./Elevenpad-0.2.0-x86_64.AppImage
+curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.3.0-x86_64.AppImage
+chmod +x Elevenpad-0.3.0-x86_64.AppImage
+./Elevenpad-0.3.0-x86_64.AppImage
 ```
 
 If FUSE 2 is not installed:
 
 ```bash
-./Elevenpad-0.2.0-x86_64.AppImage --appimage-extract-and-run
+./Elevenpad-0.3.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
 ### Tarball
 
 ```bash
-curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.2.0-linux-x86_64.tar.gz
-tar xzf Elevenpad-0.2.0-linux-x86_64.tar.gz
-cd elevenpad-0.2.0
+curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.3.0-linux-x86_64.tar.gz
+tar xzf Elevenpad-0.3.0-linux-x86_64.tar.gz
+cd elevenpad-0.3.0
 ./install.sh          # installs to ~/.local/bin, no root needed
 elevenpad
 ```

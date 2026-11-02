@@ -6,6 +6,8 @@ mod app;
 mod doc;
 #[path = "../icons.rs"]
 mod icons;
+#[path = "../syntax.rs"]
+mod syntax;
 #[path = "../theme.rs"]
 mod theme;
 
@@ -25,6 +27,9 @@ fn main() {
         .unwrap_or_else(|| "screenshot.png".to_string());
     let dark = args.iter().any(|a| a == "--dark");
     let show_find = args.iter().any(|a| a == "--find");
+    let show_syntax = args.iter().any(|a| a == "--syntax");
+    let show_save = args.iter().any(|a| a == "--save-dialog");
+    let show_rows = args.iter().any(|a| a == "--rows");
     let resize_test = args.iter().any(|a| a == "--resize-test");
     let press_at = args.iter().find_map(|a| parse_pos(a, "--press-at="));
     let click_at = args.iter().find_map(|a| parse_pos(a, "--click-at="));
@@ -55,12 +60,21 @@ fn main() {
          \n\
          Try the tabs, the menus, Ctrl+F for Find, and Ctrl+H for Replace.\n",
     );
+    if show_syntax {
+        app.docs[0].path = Some(std::path::PathBuf::from("example.rs"));
+        app.docs[0].text = String::from(
+            "use std::fs;\n\n/// Count lines in a file.\npub fn count_lines(path: &str) -> usize {\n    let text = fs::read_to_string(path).unwrap_or_default();\n    text.lines().count()\n}\n\nfn main() {\n    let n = count_lines(\"notes.txt\");\n    println!(\"{} lines\", n); // report\n}\n",
+        );
+    }
     app.docs[0].scroll_to_line = Some(1);
     let mut second = doc::Doc::new();
     second.path = Some(std::path::PathBuf::from("notes.txt"));
     second.text = "Groceries\n- coffee\n- milk\n".into();
     second.modified = true;
     app.docs.push(second);
+    if show_save {
+        app.save(true);
+    }
     if show_find {
         app.find_visible = true;
         app.find.query = "Notepad".into();
@@ -107,7 +121,28 @@ fn main() {
     }
 
     let output = ctx.run(raw_input, |ctx| {
-        app.ui(ctx);
+        if show_rows {
+            egui::CentralPanel::default()
+                .frame(egui::Frame::none().fill(app.palette.surface))
+                .show(ctx, |ui| {
+                    ui.add_space(30.0);
+                    ui.set_width(320.0);
+                    let p = app.palette;
+                    let items = [
+                        ("Documents", true),
+                        ("Projects", true),
+                        ("assets", true),
+                        ("notes.txt", false),
+                        ("main.rs", false),
+                        ("README.md", false),
+                    ];
+                    for (i, (name, dir)) in items.iter().enumerate() {
+                        app::file_row(ui, name, *dir, i == 1, p);
+                    }
+                });
+        } else {
+            app.ui(ctx);
+        }
     });
 
     if resize_test || press_at.is_some() {

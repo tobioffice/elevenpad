@@ -139,3 +139,58 @@ pub fn sparkle(ui: &mut Ui, center: Pos2, color: Color32, radius: f32) {
         Stroke::NONE,
     ));
 }
+
+/// Explorer-style folder icon.
+pub fn folder(ui: &mut Ui, rect: Rect, tint: Color32) {
+    let p = ui.painter();
+    let w = rect.width();
+    let h = rect.height();
+    let tab = Rect::from_min_size(
+        egui::pos2(rect.left() + w * 0.06, rect.top() + h * 0.18),
+        Vec2::new(w * 0.42, h * 0.22),
+    );
+    p.rect_filled(tab, 2.0, tint.gamma_multiply(0.92));
+    let body = Rect::from_min_size(
+        egui::pos2(rect.left() + w * 0.04, rect.top() + h * 0.32),
+        Vec2::new(w * 0.92, h * 0.56),
+    );
+    p.rect_filled(body, 2.5, tint);
+    let lip = Rect::from_min_size(
+        egui::pos2(body.left(), body.top()),
+        Vec2::new(body.width(), body.height() * 0.22),
+    );
+    p.rect_filled(lip, 2.0, tint.gamma_multiply(1.12));
+}
+
+/// Document icon with a folded corner.
+pub fn file_page(ui: &mut Ui, rect: Rect, page: Color32, ink: Color32) {
+    let p = ui.painter();
+    let w = rect.width();
+    let h = rect.height();
+    let body = Rect::from_min_size(
+        egui::pos2(rect.left() + w * 0.18, rect.top() + h * 0.08),
+        Vec2::new(w * 0.64, h * 0.84),
+    );
+    p.rect_filled(body, 1.5, page);
+    p.rect_stroke(body, 1.5, Stroke::new(1.0, ink.gamma_multiply(0.75)));
+    let fold = 4.0;
+    p.add(egui::Shape::convex_polygon(
+        vec![
+            egui::pos2(body.right() - fold, body.top()),
+            egui::pos2(body.right(), body.top() + fold),
+            egui::pos2(body.right() - fold, body.top() + fold),
+        ],
+        ink.gamma_multiply(0.25),
+        Stroke::NONE,
+    ));
+    for i in 0..3 {
+        let y = body.top() + h * 0.34 + i as f32 * h * 0.16;
+        p.line_segment(
+            [
+                egui::pos2(body.left() + 2.0, y),
+                egui::pos2(body.right() - 2.0, y),
+            ],
+            Stroke::new(0.8, ink.gamma_multiply(0.75)),
+        );
+    }
+}

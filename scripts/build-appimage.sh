@@ -28,7 +28,7 @@ Exec=elevenpad %F
 Icon=elevenpad
 Terminal=false
 Categories=Utility;TextEditor;
-MimeType=text/plain;
+MimeType=text/plain;text/markdown;text/x-rust;text/x-python;text/x-csrc;text/x-chdr;text/x-c++src;text/x-c++hdr;text/x-java;text/x-go;application/json;application/x-shellscript;text/xml;text/css;text/html;text/x-yaml;application/toml;
 StartupWMClass=elevenpad
 EOF
 cp AppDir/elevenpad.desktop AppDir/usr/share/applications/

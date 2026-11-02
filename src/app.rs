@@ -9,6 +9,7 @@ use egui::{
 
 use crate::doc::{Doc, Eol};
 use crate::icons;
+use crate::syntax;
 use crate::theme::{self, Palette, UI_FONT_SEMIBOLD};
 
 pub struct FindState {
@@ -658,6 +659,25 @@ impl NotepadApp {
                 let before = doc.text.clone();
 
                 let font_id = FontId::monospace(font_size);
+                let lang = syntax::detect(doc.path.as_deref());
+                let syn_colors = if self.dark {
+                    syntax::Colors::dark()
+                } else {
+                    syntax::Colors::light()
+                };
+                let layout_font = font_id.clone();
+                let base_color = p.text;
+                let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
+                    let job = syntax::highlight(
+                        text,
+                        lang,
+                        layout_font.clone(),
+                        base_color,
+                        syn_colors,
+                        wrap_width,
+                    );
+                    ui.fonts(|f| f.layout_job(job))
+                };
                 let row_height = ui.fonts(|f| f.row_height(&font_id));
                 let rows = ((ui.available_height().max(0.0) / row_height).ceil() as usize).max(1);
 
@@ -690,6 +710,7 @@ impl NotepadApp {
                             bottom: 24.0,
                         })
                         .desired_width(width)
+                        .layouter(&mut layouter)
                         .lock_focus(true)
                         .show(ui)
                 });
@@ -1073,7 +1094,7 @@ impl NotepadApp {
         });
     }
 
-    fn save(&mut self, force_dialog: bool) {
+    pub fn save(&mut self, force_dialog: bool) {
         let idx = self.doc_index();
         let doc = &mut self.docs[idx];
         if let (Some(path), false) = (doc.path.clone(), force_dialog) {
@@ -1167,13 +1188,8 @@ impl NotepadApp {
                                                 .file_name()
                                                 .map(|n| n.to_string_lossy().to_string())
                                                 .unwrap_or_default();
-                                            let label = if entry.is_dir() {
-                                                format!("[dir]  {name}")
-                                            } else {
-                                                format!("       {name}")
-                                            };
                                             let here = selected.as_ref() == Some(entry);
-                                            if ui.selectable_label(here, label).clicked() {
+                                            if file_row(ui, &name, entry.is_dir(), here, p) {
                                                 if entry.is_dir() {
                                                     navigate = Some(entry.clone());
                                                 } else {
@@ -1230,12 +1246,7 @@ impl NotepadApp {
                                                 .file_name()
                                                 .map(|n| n.to_string_lossy().to_string())
                                                 .unwrap_or_default();
-                                            let label = if entry.is_dir() {
-                                                format!("[dir]  {entry_name}")
-                                            } else {
-                                                format!("       {entry_name}")
-                                            };
-                                            if ui.selectable_label(false, label).clicked() {
+                                            if file_row(ui, &entry_name, entry.is_dir(), false, p) {
                                                 if entry.is_dir() {
                                                     navigate = Some(entry.clone());
                                                 } else {
@@ -1332,7 +1343,10 @@ impl NotepadApp {
                             Dialog::About => {
                                 ui.label(RichText::new("About Elevenpad").size(15.0).strong());
                                 ui.add_space(6.0);
-                                ui.label("Elevenpad 0.2.0, a Windows 11 Notepad reimplementation for Linux.");
+                                ui.label(format!(
+                                    "Elevenpad {}, a Windows 11 Notepad reimplementation for Linux.",
+                                    env!("CARGO_PKG_VERSION")
+                                ));
                                 ui.label(
                                     RichText::new(
                                         "Written in Rust with egui. Not affiliated with Microsoft.",
@@ -1479,6 +1493,35 @@ impl NotepadApp {
         }
     }
 
+    pub fn open_files(&mut self, paths: Vec<PathBuf>) {
+        let pristine = self.docs.len() == 1
+            && self.docs[0].path.is_none()
+            && self.docs[0].text.is_empty()
+            && !self.docs[0].modified;
+        if pristine {
+            self.docs.clear();
+        }
+        for path in paths {
+            let canonical = path.canonicalize().unwrap_or_else(|_| path.clone());
+            if let Some(index) = self
+                .docs
+                .iter()
+                .position(|doc| doc.path.as_ref().map(|p| p.canonicalize().unwrap_or_else(|_| p.clone())) == Some(canonical.clone()))
+            {
+                self.active = index;
+                continue;
+            }
+            match Doc::from_file(path) {
+                Ok(doc) => self.docs.push(doc),
+                Err(err) => self.flash(format!("Could not open file: {err}")),
+            }
+        }
+        if self.docs.is_empty() {
+            self.docs.push(Doc::new());
+        }
+        self.active = 0;
+    }
+
     pub fn open_path(&mut self, path: PathBuf) {
         match Doc::from_file(path) {
             Ok(doc) => {
@@ -1604,6 +1647,34 @@ fn avatar(ui: &mut egui::Ui, p: Palette) {
         FontId::new(11.5, egui::FontFamily::Name(UI_FONT_SEMIBOLD.into())),
         Color32::WHITE,
     );
+}
+
+pub(crate) fn file_row(ui: &mut egui::Ui, name: &str, is_dir: bool, selected: bool, p: Palette) -> bool {
+    let height = 26.0;
+    let (rect, response) =
+        ui.allocate_exact_size(Vec2::new(ui.available_width(), height), Sense::click());
+    if selected {
+        ui.painter().rect_filled(rect, Rounding::same(4.0), p.selection);
+    } else if response.hovered() {
+        ui.painter().rect_filled(rect, Rounding::same(4.0), p.hover);
+    }
+    let icon_rect = Rect::from_center_size(
+        Pos2::new(rect.left() + 16.0, rect.center().y),
+        Vec2::new(18.0, 18.0),
+    );
+    if is_dir {
+        icons::folder(ui, icon_rect, Color32::from_rgb(0xE8, 0xB8, 0x4B));
+    } else {
+        icons::file_page(ui, icon_rect, p.surface, p.text_weak);
+    }
+    ui.painter().with_clip_rect(rect).text(
+        Pos2::new(rect.left() + 32.0, rect.center().y),
+        Align2::LEFT_CENTER,
+        name,
+        FontId::proportional(12.5),
+        p.text,
+    );
+    response.clicked()
 }
 
 fn list_dir(dir: &PathBuf) -> Vec<PathBuf> {

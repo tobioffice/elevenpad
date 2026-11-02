@@ -6,6 +6,8 @@ mod app;
 mod doc;
 #[path = "../icons.rs"]
 mod icons;
+#[path = "../syntax.rs"]
+mod syntax;
 #[path = "../theme.rs"]
 mod theme;
 
@@ -26,6 +28,18 @@ fn main() {
     ctx.set_pixels_per_point(1.0);
     let mut app = app::NotepadApp::new(&ctx);
     app.docs[0].text = "hello\nworld\n".into();
+
+    let tmp = std::env::temp_dir().join("elevenpad-open-test.txt");
+    std::fs::write(&tmp, "opened from the file manager\n").unwrap();
+    let mut opener = app::NotepadApp::new(&ctx);
+    opener.open_files(vec![tmp.clone()]);
+    println!(
+        "open_files -> docs={} title={:?} text={:?}",
+        opener.docs.len(),
+        opener.docs[0].title(),
+        opener.docs[0].text
+    );
+    std::fs::remove_file(&tmp).ok();
 
     let editor = egui::Id::new("notepad-editor");
     let cases = [
