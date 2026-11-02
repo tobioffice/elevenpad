@@ -1,0 +1,10 @@
+target/
+AppDir/
+port/
+reference/
+squashfs-root/
+*.AppImage
+*.tar.gz
+*.png.tmp
+shot*.png
+.DS_Store
