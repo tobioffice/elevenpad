@@ -1330,9 +1330,9 @@ impl NotepadApp {
                                 }
                             }
                             Dialog::About => {
-                                ui.label(RichText::new("About Notepad").size(15.0).strong());
+                                ui.label(RichText::new("About Elevenpad").size(15.0).strong());
                                 ui.add_space(6.0);
-                                ui.label("A Windows 11 Notepad reimplementation for Linux.");
+                                ui.label("Elevenpad 0.2.0, a Windows 11 Notepad reimplementation for Linux.");
                                 ui.label(
                                     RichText::new(
                                         "Written in Rust with egui. Not affiliated with Microsoft.",

@@ -12,31 +12,31 @@ mkdir -p AppDir/usr/bin AppDir/usr/share/applications \
          AppDir/usr/share/icons/hicolor/256x256/apps \
          AppDir/usr/share/icons/hicolor/512x512/apps
 
-cp target/release/win11-notepad AppDir/usr/bin/
-strip AppDir/usr/bin/win11-notepad
-cp assets/icon.png AppDir/win11-notepad.png
-cp assets/icon-256.png AppDir/usr/share/icons/hicolor/256x256/apps/win11-notepad.png
-cp assets/icon.png AppDir/usr/share/icons/hicolor/512x512/apps/win11-notepad.png
+cp target/release/elevenpad AppDir/usr/bin/
+strip AppDir/usr/bin/elevenpad
+cp assets/icon.png AppDir/elevenpad.png
+cp assets/icon-256.png AppDir/usr/share/icons/hicolor/256x256/apps/elevenpad.png
+cp assets/icon.png AppDir/usr/share/icons/hicolor/512x512/apps/elevenpad.png
 
-cat > AppDir/win11-notepad.desktop <<'EOF'
+cat > AppDir/elevenpad.desktop <<'EOF'
 [Desktop Entry]
 Type=Application
-Name=Notepad
+Name=Elevenpad
 GenericName=Text Editor
-Comment=Windows 11 Notepad, recreated in Rust
-Exec=win11-notepad %F
-Icon=win11-notepad
+Comment=Windows 11 Notepad reimplementation for Linux, in Rust
+Exec=elevenpad %F
+Icon=elevenpad
 Terminal=false
 Categories=Utility;TextEditor;
 MimeType=text/plain;
-StartupWMClass=win11-notepad
+StartupWMClass=elevenpad
 EOF
-cp AppDir/win11-notepad.desktop AppDir/usr/share/applications/
+cp AppDir/elevenpad.desktop AppDir/usr/share/applications/
 
 cat > AppDir/AppRun <<'EOF'
 #!/bin/sh
 HERE=$(dirname "$(readlink -f "$0")")
-exec "$HERE/usr/bin/win11-notepad" "$@"
+exec "$HERE/usr/bin/elevenpad" "$@"
 EOF
 chmod +x AppDir/AppRun
 
@@ -48,5 +48,5 @@ if [ ! -x "$TOOL" ]; then
   TOOL=/tmp/appimagetool
 fi
 
-ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" AppDir "Notepad-$VERSION-x86_64.AppImage"
-echo "built Notepad-$VERSION-x86_64.AppImage"
+ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" AppDir "Elevenpad-$VERSION-x86_64.AppImage"
+echo "built Elevenpad-$VERSION-x86_64.AppImage"

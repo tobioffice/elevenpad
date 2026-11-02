@@ -11,13 +11,13 @@ fn main() -> eframe::Result<()> {
             .with_inner_size([1040.0, 700.0])
             .with_min_inner_size([640.0, 420.0])
             .with_decorations(false)
-            .with_title("Notepad"),
+            .with_title("Elevenpad"),
         renderer: eframe::Renderer::Wgpu,
         ..Default::default()
     };
 
     eframe::run_native(
-        "Notepad",
+        "Elevenpad",
         options,
         Box::new(|cc| Ok(Box::new(app::NotepadApp::new(&cc.egui_ctx)))),
     )

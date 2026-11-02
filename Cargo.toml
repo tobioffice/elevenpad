@@ -1,8 +1,8 @@
 [package]
-name = "win11-notepad"
-version = "0.1.1"
+name = "elevenpad"
+version = "0.2.0"
 edition = "2021"
-description = "A Windows 11 Notepad reimplementation for Linux, written in Rust"
+description = "A Windows 11 Notepad reimplementation for Linux, written in Rust with egui"
 license = "MIT"
 
 [dependencies]
@@ -15,7 +15,7 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 chrono = "0.4"
 
 [[bin]]
-name = "win11-notepad"
+name = "elevenpad"
 path = "src/main.rs"
 
 [[bin]]
