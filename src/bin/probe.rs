@@ -41,6 +41,20 @@ fn main() {
     );
     std::fs::remove_file(&tmp).ok();
 
+    let hidden_dir = std::env::temp_dir().join("elevenpad-hidden-test");
+    std::fs::create_dir_all(hidden_dir.join(".git")).ok();
+    std::fs::write(hidden_dir.join(".env"), "x").ok();
+    std::fs::write(hidden_dir.join("notes.txt"), "x").ok();
+    let names = |paths: Vec<std::path::PathBuf>| {
+        paths
+            .iter()
+            .filter_map(|p| p.file_name().map(|n| n.to_string_lossy().to_string()))
+            .collect::<Vec<_>>()
+    };
+    println!("hidden off -> {:?}", names(app::list_dir(&hidden_dir, false)));
+    println!("hidden on  -> {:?}", names(app::list_dir(&hidden_dir, true)));
+    std::fs::remove_dir_all(&hidden_dir).ok();
+
     let editor = egui::Id::new("notepad-editor");
     let cases = [
         ("editor middle", Pos2::new(600.0, 400.0)),

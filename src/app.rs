@@ -41,12 +41,14 @@ pub enum Dialog {
         dir: PathBuf,
         entries: Vec<PathBuf>,
         selected: Option<PathBuf>,
+        show_hidden: bool,
     },
     Save {
         dir: PathBuf,
         entries: Vec<PathBuf>,
         name: String,
         focus: bool,
+        show_hidden: bool,
     },
     GoTo {
         value: String,
@@ -1101,11 +1103,12 @@ impl NotepadApp {
 
     fn open_dialog(&mut self) {
         let dir = self.start_dir();
-        let entries = list_dir(&dir);
+        let entries = list_dir(&dir, false);
         self.dialog = Some(Dialog::Open {
             dir,
             entries,
             selected: None,
+            show_hidden: false,
         });
     }
 
@@ -1125,7 +1128,7 @@ impl NotepadApp {
                 .map(|p| p.to_path_buf())
                 .or_else(|| std::env::current_dir().ok())
                 .unwrap_or_else(|| PathBuf::from("/"));
-            let entries = list_dir(&dir);
+            let entries = list_dir(&dir, false);
             let name = if doc.title() == "Untitled" {
                 "Untitled.txt".into()
             } else {
@@ -1136,6 +1139,7 @@ impl NotepadApp {
                 entries,
                 name,
                 focus: true,
+                show_hidden: false,
             });
         }
     }
@@ -1183,6 +1187,7 @@ impl NotepadApp {
                                 dir,
                                 entries,
                                 selected,
+                                show_hidden,
                             } => {
                                 ui.label(RichText::new("Open").size(15.0).strong());
                                 ui.add_space(2.0);
@@ -1195,7 +1200,7 @@ impl NotepadApp {
                                 if ui.button("Up one level").clicked() {
                                     if let Some(parent) = dir.parent() {
                                         *dir = parent.to_path_buf();
-                                        *entries = list_dir(dir);
+                                        *entries = list_dir(dir, *show_hidden);
                                         *selected = None;
                                     }
                                 }
@@ -1221,11 +1226,19 @@ impl NotepadApp {
                                     });
                                 if let Some(target) = navigate.take() {
                                     *dir = target;
-                                    *entries = list_dir(dir);
+                                    *entries = list_dir(dir, *show_hidden);
                                     *selected = None;
                                 }
                                 ui.add_space(8.0);
                                 ui.horizontal(|ui| {
+                                    if ui
+                                        .checkbox(show_hidden, "Show hidden items")
+                                        .changed()
+                                    {
+                                        *entries = list_dir(dir, *show_hidden);
+                                        *selected = None;
+                                    }
+                                    ui.add_space(12.0);
                                     if ui.button("Cancel").clicked() {
                                         close = true;
                                     }
@@ -1233,7 +1246,7 @@ impl NotepadApp {
                                         if let Some(path) = selected.clone() {
                                             if path.is_dir() {
                                                 *dir = path;
-                                                *entries = list_dir(dir);
+                                                *entries = list_dir(dir, *show_hidden);
                                                 *selected = None;
                                             } else {
                                                 open_path = Some(path);
@@ -1248,6 +1261,7 @@ impl NotepadApp {
                                 entries,
                                 name,
                                 focus,
+                                show_hidden,
                             } => {
                                 ui.label(RichText::new("Save as").size(15.0).strong());
                                 ui.add_space(2.0);
@@ -1278,7 +1292,7 @@ impl NotepadApp {
                                     });
                                 if let Some(target) = navigate.take() {
                                     *dir = target;
-                                    *entries = list_dir(dir);
+                                    *entries = list_dir(dir, *show_hidden);
                                 }
                                 ui.add_space(6.0);
                                 ui.horizontal(|ui| {
@@ -1293,6 +1307,13 @@ impl NotepadApp {
                                 });
                                 ui.add_space(8.0);
                                 ui.horizontal(|ui| {
+                                    if ui
+                                        .checkbox(show_hidden, "Show hidden items")
+                                        .changed()
+                                    {
+                                        *entries = list_dir(dir, *show_hidden);
+                                    }
+                                    ui.add_space(12.0);
                                     if ui.button("Cancel").clicked() {
                                         close = true;
                                     }
@@ -1698,9 +1719,19 @@ pub(crate) fn file_row(ui: &mut egui::Ui, name: &str, is_dir: bool, selected: bo
     response.clicked()
 }
 
-fn list_dir(dir: &PathBuf) -> Vec<PathBuf> {
+pub(crate) fn list_dir(dir: &PathBuf, show_hidden: bool) -> Vec<PathBuf> {
     let mut entries: Vec<PathBuf> = std::fs::read_dir(dir)
-        .map(|rd| rd.filter_map(|e| e.ok().map(|e| e.path())).collect())
+        .map(|rd| {
+            rd.filter_map(|e| e.ok().map(|e| e.path()))
+                .filter(|path| {
+                    show_hidden
+                        || path
+                            .file_name()
+                            .map(|name| !name.to_string_lossy().starts_with('.'))
+                            .unwrap_or(true)
+                })
+                .collect()
+        })
         .unwrap_or_default();
     entries.sort_by_key(|p| (!p.is_dir(), p.file_name().map(|n| n.to_owned())));
     entries
