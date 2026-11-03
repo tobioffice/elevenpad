@@ -30,6 +30,7 @@ fn main() {
     let show_syntax = args.iter().any(|a| a == "--syntax");
     let show_save = args.iter().any(|a| a == "--save-dialog");
     let show_rows = args.iter().any(|a| a == "--rows");
+    let hover_at = args.iter().find_map(|a| parse_pos(a, "--hover-at="));
     let resize_test = args.iter().any(|a| a == "--resize-test");
     let press_at = args.iter().find_map(|a| parse_pos(a, "--press-at="));
     let click_at = args.iter().find_map(|a| parse_pos(a, "--click-at="));
@@ -81,11 +82,13 @@ fn main() {
         app.find.message = Some("2 matches".into());
     }
 
+    let move_event = hover_at.map(egui::Event::PointerMoved);
     let mut raw_input = egui::RawInput {
         screen_rect: Some(Rect::from_min_size(
             egui::Pos2::ZERO,
             egui::vec2(width as f32, height as f32),
         )),
+        events: move_event.into_iter().collect(),
         ..Default::default()
     };
     if let Some(pos) = press_at {

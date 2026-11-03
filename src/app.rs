@@ -322,6 +322,7 @@ impl NotepadApp {
             .frame(Frame::none().fill(p.window))
             .show(ctx, |ui| {
                 let rect = ui.max_rect();
+                let pointer = ui.input(|i| i.pointer.hover_pos());
 
                 let caption_w = 138.0;
                 let mut x = rect.left() + 8.0;
@@ -334,13 +335,17 @@ impl NotepadApp {
                         Rect::from_min_size(Pos2::new(x, rect.top() + 8.0), Vec2::new(tab_w, 32.0));
                     let resp = ui.interact(tab_rect, Id::new(("tab", i)), Sense::click());
                     let active = i == self.active;
-                    let hovered = resp.hovered();
                     let close_rect = Rect::from_center_size(
                         Pos2::new(tab_rect.right() - 16.0, tab_rect.center().y),
                         Vec2::splat(18.0),
                     );
                     let close_resp =
                         ui.interact(close_rect, Id::new(("tab-close", i)), Sense::click());
+                    // The close button sits on top of the tab and steals `hovered()`
+                    // from it, so use the pointer position for the shared hover state.
+                    let over_tab = pointer.map(|p| tab_rect.contains(p)).unwrap_or(false);
+                    let over_close = pointer.map(|p| close_rect.contains(p)).unwrap_or(false);
+                    let hovered = resp.hovered() || over_tab || over_close;
 
                     let painter = ui.painter();
                     if active {
@@ -386,13 +391,13 @@ impl NotepadApp {
                             p.text_weak,
                         );
                     } else if hovered || active {
-                        if close_resp.hovered() {
-                            painter.rect_filled(close_rect, Rounding::same(4.0), p.hover);
+                        if over_close {
+                            painter.rect_filled(close_rect, Rounding::same(4.0), p.pressed);
                         }
                         icons::cross(
                             ui,
                             close_rect.center(),
-                            if close_resp.hovered() { p.text } else { p.text_weak },
+                            if over_close { p.text } else { p.text_weak },
                             9.0,
                         );
                     }
@@ -445,7 +450,7 @@ impl NotepadApp {
                 ] {
                     let brect = Rect::from_min_size(Pos2::new(bx, rect.top()), Vec2::new(46.0, 40.0));
                     let resp = ui.interact(brect, id, Sense::click());
-                    let hovered = resp.hovered();
+                    let hovered = pointer.map(|p| brect.contains(p)).unwrap_or(false);
                     let close = kind == 2;
                     if hovered {
                         ui.painter().rect_filled(
