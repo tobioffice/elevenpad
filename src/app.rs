@@ -86,6 +86,7 @@ pub enum Action {
     ToggleDark,
     ToggleStatus,
     ToggleTop,
+    ToggleRounded,
     Font,
     About,
     Minimize,
@@ -108,6 +109,7 @@ pub struct NotepadApp {
     pub find_visible: bool,
     pub dialog: Option<Dialog>,
     pub always_on_top: bool,
+    pub rounded: bool,
     pub status_msg: Option<String>,
     pub status_time: f64,
     pub cursor: (usize, usize),
@@ -128,11 +130,12 @@ impl NotepadApp {
             word_wrap: true,
             show_status: true,
             zoom: 1.0,
-            font_size: 13.0,
+            font_size: 15.0,
             find: FindState::default(),
             find_visible: false,
             dialog: None,
             always_on_top: false,
+            rounded: true,
             status_msg: None,
             status_time: 0.0,
             cursor: (1, 1),
@@ -262,6 +265,10 @@ impl NotepadApp {
                         egui::viewport::WindowLevel::Normal
                     }));
                 }
+                Action::ToggleRounded => {
+                    self.rounded = !self.rounded;
+                    ctx.send_viewport_cmd(ViewportCommand::Transparent(self.rounded));
+                }
                 Action::Font => self.dialog = Some(Dialog::Font),
                 Action::About => self.dialog = Some(Dialog::About),
                 Action::CloseFind => self.find_visible = false,
@@ -321,10 +328,23 @@ impl NotepadApp {
         let p = self.palette;
         egui::TopBottomPanel::top("title-bar")
             .exact_height(40.0)
-            .frame(Frame::none().fill(p.window))
+            .frame(Frame::none().fill(Color32::TRANSPARENT))
             .show(ctx, |ui| {
                 let rect = ui.max_rect();
                 let pointer = ui.input(|i| i.pointer.hover_pos());
+                let radius = if self.rounded { 12.0 } else { 0.0 };
+                let body = Rect::from_min_max(rect.min, Pos2::new(rect.right(), rect.bottom() + 1.0));
+                let rounding = Rounding {
+                    nw: radius,
+                    ne: radius,
+                    sw: 0.0,
+                    se: 0.0,
+                };
+                ui.painter().rect_filled(body, rounding, p.window);
+                if self.rounded {
+                    ui.painter()
+                        .rect_stroke(body, rounding, Stroke::new(1.0, p.stroke_strong));
+                }
 
                 let caption_w = 138.0;
                 let mut x = rect.left() + 8.0;
@@ -371,8 +391,13 @@ impl NotepadApp {
                     let title = self.docs[i].title();
                     let modified = self.docs[i].modified;
                     let text_color = if active { p.text } else { p.text_weak };
-                    let text_left = tab_rect.left() + 12.0;
+                    let text_left = tab_rect.left() + 30.0;
                     let text_right = tab_rect.right() - 30.0;
+                    let icon_rect = Rect::from_center_size(
+                        Pos2::new(tab_rect.left() + 16.0, tab_rect.center().y),
+                        Vec2::splat(14.0),
+                    );
+                    icons::notebook(ui, icon_rect, p.accent, p.text);
                     painter
                         .with_clip_rect(Rect::from_min_max(
                             Pos2::new(text_left, tab_rect.top()),
@@ -494,6 +519,7 @@ impl NotepadApp {
         let dark = self.dark;
         let status = self.show_status;
         let top = self.always_on_top;
+        let rounded = self.rounded;
 
         egui::TopBottomPanel::top("menu-bar")
             .exact_height(38.0)
@@ -646,6 +672,18 @@ impl NotepadApp {
                         }
                     });
                 });
+                if self.rounded {
+                    let rect = ui.max_rect();
+                    let stroke = Stroke::new(1.0, p.stroke_strong);
+                    ui.painter().line_segment(
+                        [Pos2::new(rect.left() + 0.5, rect.top()), Pos2::new(rect.left() + 0.5, rect.bottom())],
+                        stroke,
+                    );
+                    ui.painter().line_segment(
+                        [Pos2::new(rect.right() - 0.5, rect.top()), Pos2::new(rect.right() - 0.5, rect.bottom())],
+                        stroke,
+                    );
+                }
             });
     }
 
@@ -711,9 +749,9 @@ impl NotepadApp {
                         .text_color(p.text)
                         .frame(false)
                         .margin(Margin {
-                            left: 10.0,
-                            right: 10.0,
-                            top: 6.0,
+                            left: 12.0,
+                            right: 12.0,
+                            top: 8.0,
                             bottom: 24.0,
                         })
                         .desired_width(width)
@@ -732,7 +770,21 @@ impl NotepadApp {
                 if output.inner.response.clicked() {
                     output.inner.response.request_focus();
                 }
+                if self.rounded {
+                    let full = ui.max_rect();
+                    let stroke = Stroke::new(1.0, p.stroke_strong);
+                    ui.painter().line_segment(
+                        [Pos2::new(full.left() + 0.5, full.top()), Pos2::new(full.left() + 0.5, full.bottom())],
+                        stroke,
+                    );
+                    ui.painter().line_segment(
+                        [Pos2::new(full.right() - 0.5, full.top()), Pos2::new(full.right() - 0.5, full.bottom())],
+                        stroke,
+                    );
+                }
             });
+
+
 
         self.cursor = cursor;
     }
@@ -745,17 +797,74 @@ impl NotepadApp {
         let zoom = (self.zoom * 100.0).round() as i32;
         let eol = self.docs[self.doc_index()].eol;
 
+        let characters = self.docs[self.doc_index()].text.chars().count();
         egui::TopBottomPanel::bottom("status-bar")
-            .exact_height(26.0)
-            .frame(Frame::none().fill(p.window).stroke(Stroke::new(1.0, p.stroke)))
+            .exact_height(28.0)
+            .frame(Frame::none().fill(Color32::TRANSPARENT))
             .show(ctx, |ui| {
                 let rect = ui.max_rect();
+                let radius = if self.rounded { 12.0 } else { 0.0 };
+                let rounding = Rounding {
+                    nw: 0.0,
+                    ne: 0.0,
+                    sw: radius,
+                    se: radius,
+                };
+                ui.painter().rect_filled(rect, rounding, p.window);
+                ui.painter().line_segment(
+                    [rect.left_top(), rect.right_top()],
+                    Stroke::new(1.0, p.stroke),
+                );
+                if self.rounded {
+                    ui.painter()
+                        .rect_stroke(rect, rounding, Stroke::new(1.0, p.stroke_strong));
+                }
                 let painter = ui.painter();
+                let cursor_text = format!("Ln {line}, Col {col}");
                 painter.text(
                     Pos2::new(rect.left() + 12.0, rect.center().y),
                     Align2::LEFT_CENTER,
-                    format!("Ln {line}, Col {col}"),
-                    FontId::proportional(11.5),
+                    &cursor_text,
+                    FontId::proportional(12.0),
+                    p.text_weak,
+                );
+                let cursor_w = painter
+                    .layout_no_wrap(cursor_text, FontId::proportional(12.0), p.text_weak)
+                    .size()
+                    .x;
+                let sep_x = rect.left() + 12.0 + cursor_w + 10.0;
+                painter.line_segment(
+                    [
+                        Pos2::new(sep_x, rect.center().y - 6.0),
+                        Pos2::new(sep_x, rect.center().y + 6.0),
+                    ],
+                    Stroke::new(1.0, p.stroke_strong),
+                );
+                let chars_text = format!("{characters} characters");
+                let chars_w = painter
+                    .layout_no_wrap(chars_text.clone(), FontId::proportional(12.0), p.text_weak)
+                    .size()
+                    .x;
+                painter.text(
+                    Pos2::new(sep_x + 10.0, rect.center().y),
+                    Align2::LEFT_CENTER,
+                    &chars_text,
+                    FontId::proportional(12.0),
+                    p.text_weak,
+                );
+                let plain_sep = sep_x + 10.0 + chars_w + 12.0;
+                painter.line_segment(
+                    [
+                        Pos2::new(plain_sep, rect.center().y - 6.0),
+                        Pos2::new(plain_sep, rect.center().y + 6.0),
+                    ],
+                    Stroke::new(1.0, p.stroke_strong),
+                );
+                painter.text(
+                    Pos2::new(plain_sep + 10.0, rect.center().y),
+                    Align2::LEFT_CENTER,
+                    "Aa  Plain",
+                    FontId::proportional(12.0),
                     p.text_weak,
                 );
 

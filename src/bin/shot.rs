@@ -230,11 +230,10 @@ fn main() {
                 view: &view,
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: 0.95,
-                        g: 0.95,
-                        b: 0.95,
-                        a: 1.0,
+                    load: wgpu::LoadOp::Clear(if dark {
+                        wgpu::Color { r: 0.09, g: 0.10, b: 0.13, a: 1.0 }
+                    } else {
+                        wgpu::Color { r: 0.80, g: 0.84, b: 0.90, a: 1.0 }
                     }),
                     store: wgpu::StoreOp::Store,
                 },

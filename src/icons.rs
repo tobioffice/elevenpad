@@ -97,7 +97,7 @@ pub fn restore(ui: &mut Ui, center: Pos2, color: Color32) {
 }
 
 /// A 16x16 notebook mark for the tab strip.
-pub fn notebook(ui: &mut Ui, rect: Rect, accent: Color32, text: Color32) {
+pub fn notebook(ui: &Ui, rect: Rect, accent: Color32, text: Color32) {
     let p = ui.painter();
     let body = Rect::from_center_size(rect.center(), Vec2::new(13.0, 15.0));
     p.rect_filled(body, 2.0, accent);
