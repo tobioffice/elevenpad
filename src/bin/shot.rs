@@ -8,6 +8,8 @@ mod doc;
 mod icons;
 #[path = "../syntax.rs"]
 mod syntax;
+#[path = "../shape.rs"]
+mod shape;
 #[path = "../theme.rs"]
 mod theme;
 

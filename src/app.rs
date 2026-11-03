@@ -119,6 +119,8 @@ pub struct NotepadApp {
     pub status_msg: Option<String>,
     pub status_time: f64,
     pub cursor: (usize, usize),
+    last_shape_size: Vec2,
+    last_shape_at: f64,
     last_ctx: Option<egui::Context>,
 }
 
@@ -145,12 +147,15 @@ impl NotepadApp {
             status_msg: None,
             status_time: 0.0,
             cursor: (1, 1),
+            last_shape_size: Vec2::ZERO,
+            last_shape_at: 0.0,
             last_ctx: Some(ctx.clone()),
         }
     }
 
     pub fn ui(&mut self, ctx: &egui::Context) {
         self.last_ctx = Some(ctx.clone());
+        self.update_window_shape(ctx);
         let resize_zone = self.native_resize(ctx);
         let mut actions = Vec::new();
         self.handle_shortcuts(ctx, &mut actions);
@@ -166,6 +171,22 @@ impl NotepadApp {
         self.toast(ctx);
         if let Some(direction) = resize_zone {
             ctx.set_cursor_icon(resize_cursor(direction));
+        }
+    }
+
+    /// Keep the X11 shape mask in sync with the window size when rounded corners
+    /// are enabled. On Wayland this is a no-op and alpha does the work.
+    fn update_window_shape(&mut self, ctx: &egui::Context) {
+        if !self.rounded {
+            return;
+        }
+        let size = ctx.screen_rect().size();
+        let changed = (size - self.last_shape_size).length() > 1.0;
+        if changed && now() - self.last_shape_at > 0.15 {
+            self.last_shape_size = size;
+            self.last_shape_at = now();
+            let maximized = ctx.input(|i| i.viewport().maximized.unwrap_or(false));
+            crate::shape::apply(size.x, size.y, if maximized { 0.0 } else { 12.0 });
         }
     }
 
@@ -274,6 +295,8 @@ impl NotepadApp {
                 Action::ToggleRounded => {
                     self.rounded = !self.rounded;
                     ctx.send_viewport_cmd(ViewportCommand::Transparent(self.rounded));
+                    let size = ctx.screen_rect().size();
+                    crate::shape::apply(size.x, size.y, if self.rounded { 12.0 } else { 0.0 });
                 }
                 Action::Font => self.dialog = Some(Dialog::Font),
                 Action::About => self.dialog = Some(Dialog::About),

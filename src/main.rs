@@ -3,6 +3,7 @@
 mod app;
 mod doc;
 mod icons;
+mod shape;
 mod syntax;
 mod theme;
 

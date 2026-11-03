@@ -1,6 +1,6 @@
 [package]
 name = "elevenpad"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 description = "A Windows 11 Notepad reimplementation for Linux, written in Rust with egui"
 license = "MIT"
@@ -25,6 +25,9 @@ path = "src/bin/probe.rs"
 [[bin]]
 name = "shot"
 path = "src/bin/shot.rs"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+x11rb = { version = "0.13", features = ["shape"] }
 
 [profile.release]
 opt-level = 2
