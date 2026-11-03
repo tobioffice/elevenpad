@@ -9,6 +9,7 @@ mod theme;
 use std::path::PathBuf;
 
 fn main() -> eframe::Result<()> {
+    let transparent = app::default_rounded();
     let mut files: Vec<PathBuf> = Vec::new();
     for arg in std::env::args().skip(1) {
         match arg.as_str() {
@@ -33,7 +34,7 @@ fn main() -> eframe::Result<()> {
             .with_inner_size([1040.0, 700.0])
             .with_min_inner_size([640.0, 420.0])
             .with_decorations(false)
-            .with_transparent(true)
+            .with_transparent(transparent)
             .with_title("Elevenpad"),
         renderer: eframe::Renderer::Wgpu,
         ..Default::default()

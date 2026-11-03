@@ -96,6 +96,12 @@ pub enum Action {
     ToggleReplace,
 }
 
+/// Rounded corners need a compositor that honors ARGB surfaces. Wayland does,
+/// plain X11 without a compositing manager does not and shows black corners.
+pub fn default_rounded() -> bool {
+    std::env::var_os("WAYLAND_DISPLAY").is_some()
+}
+
 pub struct NotepadApp {
     pub docs: Vec<Doc>,
     pub active: usize,
@@ -135,7 +141,7 @@ impl NotepadApp {
             find_visible: false,
             dialog: None,
             always_on_top: false,
-            rounded: true,
+            rounded: default_rounded(),
             status_msg: None,
             status_time: 0.0,
             cursor: (1, 1),
@@ -342,8 +348,11 @@ impl NotepadApp {
                 };
                 ui.painter().rect_filled(body, rounding, p.window);
                 if self.rounded {
-                    ui.painter()
-                        .rect_stroke(body, rounding, Stroke::new(1.0, p.stroke_strong));
+                    ui.painter().rect_stroke(
+                        body.shrink(0.5),
+                        rounding,
+                        Stroke::new(1.0, p.stroke_strong),
+                    );
                 }
 
                 let caption_w = 138.0;
@@ -676,11 +685,11 @@ impl NotepadApp {
                     let rect = ui.max_rect();
                     let stroke = Stroke::new(1.0, p.stroke_strong);
                     ui.painter().line_segment(
-                        [Pos2::new(rect.left() + 0.5, rect.top()), Pos2::new(rect.left() + 0.5, rect.bottom())],
+                        [Pos2::new(rect.left() + 1.0, rect.top()), Pos2::new(rect.left() + 1.0, rect.bottom())],
                         stroke,
                     );
                     ui.painter().line_segment(
-                        [Pos2::new(rect.right() - 0.5, rect.top()), Pos2::new(rect.right() - 0.5, rect.bottom())],
+                        [Pos2::new(rect.right() - 1.0, rect.top()), Pos2::new(rect.right() - 1.0, rect.bottom())],
                         stroke,
                     );
                 }
@@ -774,11 +783,11 @@ impl NotepadApp {
                     let full = ui.max_rect();
                     let stroke = Stroke::new(1.0, p.stroke_strong);
                     ui.painter().line_segment(
-                        [Pos2::new(full.left() + 0.5, full.top()), Pos2::new(full.left() + 0.5, full.bottom())],
+                        [Pos2::new(full.left() + 1.0, full.top()), Pos2::new(full.left() + 1.0, full.bottom())],
                         stroke,
                     );
                     ui.painter().line_segment(
-                        [Pos2::new(full.right() - 0.5, full.top()), Pos2::new(full.right() - 0.5, full.bottom())],
+                        [Pos2::new(full.right() - 1.0, full.top()), Pos2::new(full.right() - 1.0, full.bottom())],
                         stroke,
                     );
                 }
@@ -816,8 +825,11 @@ impl NotepadApp {
                     Stroke::new(1.0, p.stroke),
                 );
                 if self.rounded {
-                    ui.painter()
-                        .rect_stroke(rect, rounding, Stroke::new(1.0, p.stroke_strong));
+                    ui.painter().rect_stroke(
+                        rect.shrink(0.5),
+                        rounding,
+                        Stroke::new(1.0, p.stroke_strong),
+                    );
                 }
                 let painter = ui.painter();
                 let cursor_text = format!("Ln {line}, Col {col}");

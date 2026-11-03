@@ -14,8 +14,8 @@
   <a href="https://github.com/emilk/egui"><img src="https://img.shields.io/badge/UI-egui-3b6ea5" alt="egui"></a>
   <img src="https://img.shields.io/badge/platform-Linux-1793d1?logo=linux&logoColor=white" alt="Linux">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2ea44f" alt="MIT"></a>
-  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/v/release/tobioffice/elevenpad?color=0078d4&cache=7" alt="Release"></a>
-  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/downloads/tobioffice/elevenpad/total?color=0078d4&cache=7" alt="Downloads"></a>
+  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/v/release/tobioffice/elevenpad?color=0078d4&cache=8" alt="Release"></a>
+  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/downloads/tobioffice/elevenpad/total?color=0078d4&cache=8" alt="Downloads"></a>
 </p>
 
 <p align="center">
@@ -47,7 +47,7 @@ without Electron, GTK, Qt or a web view.
 | **Navigation** | Go to line, line and column readout in the status bar |
 | **View** | Word wrap, zoom from 20% to 500% with Ctrl and mouse wheel, status bar toggle, always on top |
 | **Files** | CRLF and LF preserved on save, UTF-8 BOM detection, drag and drop to open, Windows 11 style dialogs that hide dot folders by default with a Show hidden items toggle |
-| **Window** | Rounded window corners with a toggle, native edge and corner resizing, title bar dragging, double click to maximize, custom caption buttons |
+| **Window** | Rounded window corners, enabled by default where the compositor supports transparency (Wayland) with a View toggle, native edge and corner resizing, title bar dragging, double click to maximize, custom caption buttons |
 | **Themes** | Light and dark palettes matching Windows 11 chrome colors |
 | **Text** | Selawik, metric compatible with Segoe UI, and DejaVu Sans Mono for the editor |
 | **Code** | Lightweight syntax highlighting for Rust, Python, JavaScript, TypeScript, C, C++, Go, Java, JSON, TOML, YAML, shell and SQL |
@@ -58,23 +58,23 @@ without Electron, GTK, Qt or a web view.
 ### AppImage (recommended)
 
 ```bash
-curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.4.0-x86_64.AppImage
-chmod +x Elevenpad-0.4.0-x86_64.AppImage
-./Elevenpad-0.4.0-x86_64.AppImage
+curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.4.1-x86_64.AppImage
+chmod +x Elevenpad-0.4.1-x86_64.AppImage
+./Elevenpad-0.4.1-x86_64.AppImage
 ```
 
 If FUSE 2 is not installed:
 
 ```bash
-./Elevenpad-0.4.0-x86_64.AppImage --appimage-extract-and-run
+./Elevenpad-0.4.1-x86_64.AppImage --appimage-extract-and-run
 ```
 
 ### Tarball
 
 ```bash
-curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.4.0-linux-x86_64.tar.gz
-tar xzf Elevenpad-0.4.0-linux-x86_64.tar.gz
-cd elevenpad-0.4.0
+curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.4.1-linux-x86_64.tar.gz
+tar xzf Elevenpad-0.4.1-linux-x86_64.tar.gz
+cd elevenpad-0.4.1
 ./install.sh          # installs to ~/.local/bin, no root needed
 elevenpad
 ```
