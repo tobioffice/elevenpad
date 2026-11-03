@@ -155,6 +155,13 @@ impl NotepadApp {
 
     pub fn ui(&mut self, ctx: &egui::Context) {
         self.last_ctx = Some(ctx.clone());
+        // Paint the window body once, behind every panel. Fractional scaling can
+        // leave a subpixel seam between panels; without this the transparent
+        // clear shows the desktop through a 1 px line.
+        let screen = ctx.screen_rect();
+        let radius = if self.rounded { 12.0 } else { 0.0 };
+        ctx.layer_painter(egui::LayerId::background())
+            .rect_filled(screen, Rounding::same(radius), self.palette.window);
         self.update_window_shape(ctx);
         let resize_zone = self.native_resize(ctx);
         let mut actions = Vec::new();
@@ -178,6 +185,10 @@ impl NotepadApp {
     /// are enabled. On Wayland this is a no-op and alpha does the work.
     fn update_window_shape(&mut self, ctx: &egui::Context) {
         if !self.rounded {
+            return;
+        }
+        if std::env::var_os("WAYLAND_DISPLAY").is_some() {
+            // native Wayland (or XWayland): no X shape; alpha handles the corners
             return;
         }
         let size = ctx.screen_rect().size();
