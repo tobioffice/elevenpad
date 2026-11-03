@@ -1375,6 +1375,13 @@ impl NotepadApp {
                                 selected,
                                 show_hidden,
                             } => {
+                                if ui.input(|i| i.modifiers.alt && i.key_pressed(egui::Key::ArrowUp)) {
+                                    if let Some(parent) = dir.parent() {
+                                        *dir = parent.to_path_buf();
+                                        *entries = list_dir(dir, *show_hidden);
+                                        *selected = None;
+                                    }
+                                }
                                 ui.label(RichText::new("Open").size(15.0).strong());
                                 ui.add_space(2.0);
                                 ui.label(
@@ -1383,7 +1390,7 @@ impl NotepadApp {
                                         .color(p.text_weak),
                                 );
                                 ui.add_space(6.0);
-                                if ui.button("Up one level").clicked() {
+                                if ui.button("Up one level").on_hover_text("Alt+Up").clicked() {
                                     if let Some(parent) = dir.parent() {
                                         *dir = parent.to_path_buf();
                                         *entries = list_dir(dir, *show_hidden);
@@ -1449,6 +1456,12 @@ impl NotepadApp {
                                 focus,
                                 show_hidden,
                             } => {
+                                if ui.input(|i| i.modifiers.alt && i.key_pressed(egui::Key::ArrowUp)) {
+                                    if let Some(parent) = dir.parent() {
+                                        *dir = parent.to_path_buf();
+                                        *entries = list_dir(dir, *show_hidden);
+                                    }
+                                }
                                 ui.label(RichText::new("Save as").size(15.0).strong());
                                 ui.add_space(2.0);
                                 ui.label(
@@ -1457,6 +1470,12 @@ impl NotepadApp {
                                         .color(p.text_weak),
                                 );
                                 ui.add_space(6.0);
+                                if ui.button("Up one level").on_hover_text("Alt+Up").clicked() {
+                                    if let Some(parent) = dir.parent() {
+                                        *dir = parent.to_path_buf();
+                                        *entries = list_dir(dir, *show_hidden);
+                                    }
+                                }
                                 let mut navigate: Option<PathBuf> = None;
                                 egui::ScrollArea::vertical()
                                     .max_height(190.0)
