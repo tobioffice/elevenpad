@@ -46,21 +46,34 @@ fn apply_inner(
 
     let pid_atom = conn.intern_atom(false, b"_NET_WM_PID")?.reply()?.atom;
     let tree = conn.query_tree(root)?.reply()?;
+    let own_pid = std::process::id();
     let mut target = None;
     for &window in &tree.children {
-        let property = conn
-            .get_property(false, window, pid_atom, AtomEnum::CARDINAL, 0, 1)?
-            .reply()?;
-        if property.value.len() >= 4 {
-            let pid = u32::from_ne_bytes([
-                property.value[0],
-                property.value[1],
-                property.value[2],
-                property.value[3],
-            ]);
-            if pid == std::process::id() {
-                target = Some(window);
-                break;
+        // Windows can disappear while the tree is being walked; ignore errors.
+        if let Ok(cookie) = conn.get_property(false, window, pid_atom, AtomEnum::CARDINAL, 0, 1) {
+            if let Ok(property) = cookie.reply() {
+                if property.value.len() >= 4 {
+                    let pid = u32::from_ne_bytes([
+                        property.value[0],
+                        property.value[1],
+                        property.value[2],
+                        property.value[3],
+                    ]);
+                    if pid == own_pid {
+                        target = Some(window);
+                        break;
+                    }
+                }
+            }
+        }
+        if let Ok(cookie) =
+            conn.get_property(false, window, AtomEnum::WM_CLASS, AtomEnum::STRING, 0, 64)
+        {
+            if let Ok(property) = cookie.reply() {
+                let class = String::from_utf8_lossy(&property.value).to_lowercase();
+                if class.contains("elevenpad") {
+                    target = Some(window);
+                }
             }
         }
     }
