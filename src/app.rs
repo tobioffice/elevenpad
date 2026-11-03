@@ -537,9 +537,22 @@ impl NotepadApp {
                     let hovered = pointer.map(|p| brect.contains(p)).unwrap_or(false);
                     let close = kind == 2;
                     if hovered {
+                        // The close button meets the window's top-right corner. A square
+                        // hover fill paints over the rounded cut and makes the window
+                        // look sharp again, so round the outer corner to match.
+                        let maximized = ctx.input(|i| i.viewport().maximized.unwrap_or(false));
+                        let radius = if self.rounded && !maximized { 12.0 } else { 0.0 };
+                        let rounding = if close {
+                            Rounding {
+                                ne: radius,
+                                ..Default::default()
+                            }
+                        } else {
+                            Rounding::ZERO
+                        };
                         ui.painter().rect_filled(
                             brect,
-                            0.0,
+                            rounding,
                             if close { p.close_hover } else { p.hover },
                         );
                     }
