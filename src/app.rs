@@ -121,6 +121,8 @@ pub struct NotepadApp {
     pub cursor: (usize, usize),
     last_shape_size: Vec2,
     last_shape_at: f64,
+    last_frame_size: Vec2,
+    resize_until: f64,
     last_ctx: Option<egui::Context>,
 }
 
@@ -149,12 +151,24 @@ impl NotepadApp {
             cursor: (1, 1),
             last_shape_size: Vec2::ZERO,
             last_shape_at: 0.0,
+            last_frame_size: Vec2::ZERO,
+            resize_until: 0.0,
             last_ctx: Some(ctx.clone()),
         }
     }
 
     pub fn ui(&mut self, ctx: &egui::Context) {
         self.last_ctx = Some(ctx.clone());
+        let frame_size = ctx.screen_rect().size();
+        if (frame_size - self.last_frame_size).length() > 0.5 {
+            self.last_frame_size = frame_size;
+            self.resize_until = now() + 0.35;
+        }
+        if now() < self.resize_until {
+            // Keep presenting while the compositor drags the edge; resize events
+            // are coalesced, so without this the last frame is stretched.
+            ctx.request_repaint();
+        }
         // Paint the window body once, behind every panel. Fractional scaling can
         // leave a subpixel seam between panels; without this the transparent
         // clear shows the desktop through a 1 px line.
@@ -755,15 +769,32 @@ impl NotepadApp {
                 };
                 let layout_font = font_id.clone();
                 let base_color = p.text;
+                let highlight = now() > self.resize_until;
                 let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
-                    let job = syntax::highlight(
-                        text,
-                        lang,
-                        layout_font.clone(),
-                        base_color,
-                        syn_colors,
-                        wrap_width,
-                    );
+                    let job = if highlight {
+                        syntax::highlight(
+                            text,
+                            lang,
+                            layout_font.clone(),
+                            base_color,
+                            syn_colors,
+                            wrap_width,
+                        )
+                    } else {
+                        let mut job = egui::text::LayoutJob::default();
+                        job.wrap.max_width = wrap_width;
+                        job.break_on_newline = true;
+                        job.append(
+                            text,
+                            0.0,
+                            egui::TextFormat {
+                                font_id: layout_font.clone(),
+                                color: base_color,
+                                ..Default::default()
+                            },
+                        );
+                        job
+                    };
                     ui.fonts(|f| f.layout_job(job))
                 };
                 let row_height = ui.fonts(|f| f.row_height(&font_id));
