@@ -14,8 +14,8 @@
   <a href="https://github.com/emilk/egui"><img src="https://img.shields.io/badge/UI-egui-3b6ea5" alt="egui"></a>
   <img src="https://img.shields.io/badge/platform-Linux-1793d1?logo=linux&logoColor=white" alt="Linux">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2ea44f" alt="MIT"></a>
-  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/v/release/tobioffice/elevenpad?color=0078d4&cache=5" alt="Release"></a>
-  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/downloads/tobioffice/elevenpad/total?color=0078d4&cache=5" alt="Downloads"></a>
+  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/v/release/tobioffice/elevenpad?color=0078d4&cache=6" alt="Release"></a>
+  <a href="https://github.com/tobioffice/elevenpad/releases"><img src="https://img.shields.io/github/downloads/tobioffice/elevenpad/total?color=0078d4&cache=6" alt="Downloads"></a>
 </p>
 
 <p align="center">
@@ -58,23 +58,23 @@ without Electron, GTK, Qt or a web view.
 ### AppImage (recommended)
 
 ```bash
-curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.3.2-x86_64.AppImage
-chmod +x Elevenpad-0.3.2-x86_64.AppImage
-./Elevenpad-0.3.2-x86_64.AppImage
+curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.3.3-x86_64.AppImage
+chmod +x Elevenpad-0.3.3-x86_64.AppImage
+./Elevenpad-0.3.3-x86_64.AppImage
 ```
 
 If FUSE 2 is not installed:
 
 ```bash
-./Elevenpad-0.3.2-x86_64.AppImage --appimage-extract-and-run
+./Elevenpad-0.3.3-x86_64.AppImage --appimage-extract-and-run
 ```
 
 ### Tarball
 
 ```bash
-curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.3.2-linux-x86_64.tar.gz
-tar xzf Elevenpad-0.3.2-linux-x86_64.tar.gz
-cd elevenpad-0.3.2
+curl -LO https://github.com/tobioffice/elevenpad/releases/latest/download/Elevenpad-0.3.3-linux-x86_64.tar.gz
+tar xzf Elevenpad-0.3.3-linux-x86_64.tar.gz
+cd elevenpad-0.3.3
 ./install.sh          # installs to ~/.local/bin, no root needed
 elevenpad
 ```

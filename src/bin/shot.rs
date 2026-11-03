@@ -123,6 +123,14 @@ fn main() {
         });
     }
 
+    if hover_at.is_some() {
+        let mut warm = raw_input.clone();
+        warm.time = Some(0.0);
+        let _ = ctx.run(warm, |ctx| {
+            app.ui(ctx);
+        });
+        raw_input.time = Some(1.0 / 60.0);
+    }
     let output = ctx.run(raw_input, |ctx| {
         if show_rows {
             egui::CentralPanel::default()

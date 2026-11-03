@@ -24,7 +24,7 @@ pub struct Palette {
 }
 
 impl Palette {
-    pub const fn light() -> Self {
+    pub fn light() -> Self {
         Self {
             window: Color32::from_rgb(0xF3, 0xF3, 0xF3),
             surface: Color32::from_rgb(0xFF, 0xFF, 0xFF),
@@ -32,21 +32,21 @@ impl Palette {
             text: Color32::from_rgb(0x1A, 0x1A, 0x1A),
             text_weak: Color32::from_rgb(0x5D, 0x5D, 0x5D),
             text_disabled: Color32::from_rgb(0x9A, 0x9A, 0x9A),
-            stroke: Color32::from_rgba_premultiplied(0, 0, 0, 0x14),
-            stroke_strong: Color32::from_rgba_premultiplied(0, 0, 0, 0x24),
-            hover: Color32::from_rgba_premultiplied(0, 0, 0, 0x0A),
-            pressed: Color32::from_rgba_premultiplied(0, 0, 0, 0x14),
+            stroke: Color32::from_rgba_unmultiplied(0, 0, 0, 0x14),
+            stroke_strong: Color32::from_rgba_unmultiplied(0, 0, 0, 0x24),
+            hover: Color32::from_rgba_unmultiplied(0, 0, 0, 0x0A),
+            pressed: Color32::from_rgba_unmultiplied(0, 0, 0, 0x14),
             accent: Color32::from_rgb(0x00, 0x67, 0xC0),
             accent_text: Color32::from_rgb(0xFF, 0xFF, 0xFF),
-            selection: Color32::from_rgba_premultiplied(0x00, 0x78, 0xD4, 0x40),
-            tab_hover: Color32::from_rgba_premultiplied(0, 0, 0, 0x08),
+            selection: Color32::from_rgba_unmultiplied(0x00, 0x78, 0xD4, 0x40),
+            tab_hover: Color32::from_rgba_unmultiplied(0, 0, 0, 0x08),
             menu_fill: Color32::from_rgb(0xF9, 0xF9, 0xF9),
-            menu_stroke: Color32::from_rgba_premultiplied(0, 0, 0, 0x1A),
+            menu_stroke: Color32::from_rgba_unmultiplied(0, 0, 0, 0x1A),
             close_hover: Color32::from_rgb(0xC4, 0x2B, 0x1C),
         }
     }
 
-    pub const fn dark() -> Self {
+    pub fn dark() -> Self {
         Self {
             window: Color32::from_rgb(0x20, 0x20, 0x20),
             surface: Color32::from_rgb(0x27, 0x27, 0x27),
@@ -54,16 +54,16 @@ impl Palette {
             text: Color32::from_rgb(0xFF, 0xFF, 0xFF),
             text_weak: Color32::from_rgb(0xC5, 0xC5, 0xC5),
             text_disabled: Color32::from_rgb(0x7A, 0x7A, 0x7A),
-            stroke: Color32::from_rgba_premultiplied(0xFF, 0xFF, 0xFF, 0x17),
-            stroke_strong: Color32::from_rgba_premultiplied(0xFF, 0xFF, 0xFF, 0x2A),
-            hover: Color32::from_rgba_premultiplied(0xFF, 0xFF, 0xFF, 0x0C),
-            pressed: Color32::from_rgba_premultiplied(0xFF, 0xFF, 0xFF, 0x17),
+            stroke: Color32::from_rgba_unmultiplied(0xFF, 0xFF, 0xFF, 0x1A),
+            stroke_strong: Color32::from_rgba_unmultiplied(0xFF, 0xFF, 0xFF, 0x33),
+            hover: Color32::from_rgba_unmultiplied(0xFF, 0xFF, 0xFF, 0x14),
+            pressed: Color32::from_rgba_unmultiplied(0xFF, 0xFF, 0xFF, 0x24),
             accent: Color32::from_rgb(0x60, 0xCD, 0xFF),
             accent_text: Color32::from_rgb(0x00, 0x1A, 0x2A),
-            selection: Color32::from_rgba_premultiplied(0x60, 0xCD, 0xFF, 0x4A),
-            tab_hover: Color32::from_rgba_premultiplied(0xFF, 0xFF, 0xFF, 0x09),
+            selection: Color32::from_rgba_unmultiplied(0x60, 0xCD, 0xFF, 0x55),
+            tab_hover: Color32::from_rgba_unmultiplied(0xFF, 0xFF, 0xFF, 0x10),
             menu_fill: Color32::from_rgb(0x2B, 0x2B, 0x2B),
-            menu_stroke: Color32::from_rgba_premultiplied(0xFF, 0xFF, 0xFF, 0x1A),
+            menu_stroke: Color32::from_rgba_unmultiplied(0xFF, 0xFF, 0xFF, 0x1F),
             close_hover: Color32::from_rgb(0xC4, 0x2B, 0x1C),
         }
     }
