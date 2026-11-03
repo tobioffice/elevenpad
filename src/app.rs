@@ -1893,6 +1893,17 @@ impl eframe::App for NotepadApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.ui(ctx);
     }
+
+    /// eframe clears the surface to a dark translucent gray by default, which is
+    /// what showed through the rounded corners. A rounded window must clear to
+    /// fully transparent so the compositor paints the desktop there.
+    fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
+        if self.rounded {
+            egui::Color32::TRANSPARENT.to_normalized_gamma_f32()
+        } else {
+            self.palette.window.to_normalized_gamma_f32()
+        }
+    }
 }
 
 

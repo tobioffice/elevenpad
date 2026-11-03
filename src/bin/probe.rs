@@ -57,6 +57,18 @@ fn main() {
     println!("hidden on  -> {:?}", names(app::list_dir(&hidden_dir, true)));
     std::fs::remove_dir_all(&hidden_dir).ok();
 
+    let mut clear_probe = app::NotepadApp::new(&ctx);
+    let rounded_clear = <app::NotepadApp as eframe::App>::clear_color(
+        &clear_probe,
+        &ctx.style().visuals,
+    );
+    clear_probe.rounded = false;
+    let square_clear = <app::NotepadApp as eframe::App>::clear_color(
+        &clear_probe,
+        &ctx.style().visuals,
+    );
+    println!("clear rounded={rounded_clear:?} square={square_clear:?}");
+
     let editor = egui::Id::new("notepad-editor");
     let cases = [
         ("editor middle", Pos2::new(600.0, 400.0)),
